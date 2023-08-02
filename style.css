@@ -13,6 +13,7 @@ h1 {
 .mainWrapper {
     margin: 25px;
     color: blue;
+    border: 2px solid red;  
 
 }
 
@@ -42,7 +43,7 @@ h1 {
 }
 
 .btnColor {
-    border: 2px solid #48abe0 !important;
+    border: 2px solid #43b1ec !important;
     color: #fbfbfb !important;
 }
 
@@ -51,12 +52,12 @@ h1 {
     border: 2px solid #48abe0 !important;
     margin-right: 10px !important;
     color: #fbfbfb !important;
-    font-weight: bold !important;
+    /* font-weight: bold !important; */
 }
 
 .inputColor::placeholder {
     color: #fbfbfb !important;
-    font-weight: bold !important;
+    /* font-weight: bold !important; */
     margin-left: 10px !important;
 
 }
@@ -64,7 +65,7 @@ h1 {
 .inputColor::before {
     content: "@example.com";
     color: #fbfbfb !important;
-    font-weight: bold !important;
+    /* font-weight: bold !important; */
 }
 
 .hidden {
@@ -90,20 +91,19 @@ h1 {
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 10;
-    background-color: rgba(255, 255, 255, 0.8);
+    /* background-color: rgba(255, 255, 255, 0.8); */
     /* Set a transparent background color */
 }
 
 #successMessage {
     position: absolute;
-    top: 15%;
-    /* Adjust the position to be above the form */
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #4caf50;
+    top: 10%;
+    left: 52%;
+    transform: translate(-50%, -50%);
+    background-color: #28a0d6;
     padding: 10px 20px;
     border-radius: 5px;
-    color: white;
-    font-weight: bold;
+    color: #2a3840;
     z-index: 10;
+    box-shadow: 0 0 40px 10px #020f1f;
 }

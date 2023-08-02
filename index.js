@@ -2,12 +2,12 @@ const { notEqual } = require("assert");
 const fs = require("fs");
 const path = require("path");
 const ipc = require("electron").ipcRenderer;
-const XLSX = require('xlsx');
+const XLSX = require("xlsx");
 const nodemailer = require("nodemailer");
 // const archiver = require('archiver');
-const AdmZip = require('adm-zip');
+const AdmZip = require("adm-zip");
 const { electron } = require("process");
-const { dialog, ipcMain, ipcRenderer } = require('electron');
+const { dialog, ipcMain, ipcRenderer } = require("electron");
 
 fileName = document.getElementById("fileName");
 
@@ -31,14 +31,25 @@ var path1 = "";
 // password = document.getElementById('password').value;
 // console.log("password", password);
 
+// chk password visibiity
+const togglePassword = document.getElementById("togglePassword");
+const passwordInput = document.getElementById("Password");
+togglePassword.addEventListener("click", function () {
+  if (passwordInput.getAttribute("type") === "password") {
+    passwordInput.setAttribute("type", "text");
+  } else {
+    passwordInput.setAttribute("type", "password");
+  }
+
+  togglePassword.classList.toggle("fa-eye-slash");
+});
+
 // send files
 const element = document.getElementById("sendFiles");
 element.addEventListener("click", sendFiles);
 
+// excel sheet upload
 function upload(event) {
-
-
-
   // console.log("The Upload Function is called")
   ipc.send("open-file-dialog-for-file");
   ipc.on("selected-file", function (event, path) {
@@ -48,30 +59,205 @@ function upload(event) {
     path1 = path1.toString();
     let index = path1.lastIndexOf("\\");
     let fileName = path1.slice(index + 1);
-    document.getElementById('excel').value = fileName;
+    document.getElementById("excel").value = fileName;
 
-
-
-
-    // Data.shift();
-    // console.log(Data);
-    // location.reload();
+    hideValidationMessage(document.getElementById("excel"));
   });
-
-  // location.reload();
 }
-function sendFiles(event) {
 
+//Credential Save
+function onDirectorySelected(event) {
+  ipcRenderer.send("open-directory-dialog");
+
+  ipcRenderer.on("selected-directory", (event, path) => {
+    // event.preventDefault();
+    console.log(`Selected directory: ${path}`);
+    dirPath = `${path}`.toString() + "/";
+
+    console.log(dirPath);
+    document.getElementById("dirPath").value = dirPath;
+
+    hideValidationMessage(document.getElementById("dirPath"));
+  });
+}
+
+// show validation msg
+function showValidationMessage(inputElement, message) {
+  // Check if a previous validation message exists for the input field
+  const existingValidationMessage = inputElement.parentNode.querySelector(
+    ".validation-message"
+  );
+  if (existingValidationMessage) {
+    existingValidationMessage.remove();
+  }
+
+  const validationMessage = document.createElement("div");
+  validationMessage.className = "validation-message";
+  validationMessage.textContent = message;
+  inputElement.parentNode.appendChild(validationMessage);
+}
+
+// hide validation msg
+function hideValidationMessage(inputElement) {
+  const validationMessage = inputElement.parentNode.querySelector(
+    ".validation-message"
+  );
+  if (validationMessage) {
+    validationMessage.remove();
+  }
+}
+
+function isEmailValid(email) {
+  // Regular expression to validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+function formValidation() {
+  const email = document.getElementById("Email").value.trim();
+  const password = document.getElementById("Password").value.trim();
+  const excelFile = document.getElementById("excel").value.trim();
+  const dirPath = document.getElementById("dirPath").value.trim();
+
+  const emailInput = document.getElementById("Email");
+  emailInput.addEventListener("focus", () => hideValidationMessage(emailInput));
+  emailInput.addEventListener("input", () => hideValidationMessage(emailInput));
+
+  const passwordInput = document.getElementById("Password");
+  passwordInput.addEventListener("focus", () =>
+    hideValidationMessage(passwordInput)
+  );
+  passwordInput.addEventListener("input", () =>
+    hideValidationMessage(passwordInput)
+  );
+
+  const excelInput = document.getElementById("excel");
+  excelInput.addEventListener("focus", () => hideValidationMessage(excelInput));
+  excelInput.addEventListener("input", () => hideValidationMessage(excelInput));
+
+  const dirPathInput = document.getElementById("dirPath");
+
+  if (dirPathInput.value === "") {
+    hideValidationMessage(dirPathInput);
+  }
+
+  dirPathInput.addEventListener("focus", () =>
+    hideValidationMessage(dirPathInput)
+  );
+  dirPathInput.addEventListener("input", () =>
+    hideValidationMessage(dirPathInput)
+  );
+
+  // chk email not blank & valid email
+  if (email.trim() === "") {
+    showValidationMessage(
+      document.getElementById("Email"),
+      "Please enter an email address."
+    );
+    return false;
+  } else if (!isEmailValid(email)) {
+    showValidationMessage(
+      document.getElementById("Email"),
+      "Please enter a valid email address."
+    );
+    return false;
+  } else {
+    hideValidationMessage(document.getElementById("Email"));
+  }
+
+  // chk pass not blanked
+  if (password.trim() === "") {
+    showValidationMessage(
+      document.getElementById("Password"),
+      "Please enter a password."
+    );
+    return false;
+  } else {
+    hideValidationMessage(document.getElementById("Password"));
+  }
+  passwordInput.addEventListener("focus", () =>
+    hideValidationMessage(passwordInput)
+  );
+
+  // chk excel not blank & file format correct
+  if (excelFile.trim() === "") {
+    showValidationMessage(
+      document.getElementById("excel"),
+      "Please select a file."
+    );
+    return false;
+  } else if (!/\.(csv|xls|xlsx)$/i.test(excelFile)) {
+    showValidationMessage(
+      document.getElementById("excel"),
+      "Please choose a valid Excel CSV, XLS, or XLSX file."
+    );
+    return false;
+  } else {
+    hideValidationMessage(document.getElementById("excel"));
+  }
+
+  // chk directory path not blank
+  if (dirPath.trim() === "") {
+    showValidationMessage(
+      document.getElementById("dirPath"),
+      "Please choose a directory path."
+    );
+    return false;
+  } else {
+    hideValidationMessage(document.getElementById("dirPath"));
+  }
+  dirPathInput.addEventListener("focus", () =>
+    hideValidationMessage(dirPathInput)
+  );
+
+  return true;
+}
+
+function showMessage(message, isSuccess) {
+  const messageBox = document.getElementById("messageBox");
+  const messageText = document.getElementById("messageText");
+
+  messageText.textContent = message;
+
+  if (isSuccess) {
+    messageBox.classList.remove("error");
+    messageBox.classList.add("success");
+  } else {
+    messageBox.classList.remove("success");
+    messageBox.classList.add("error");
+  }
+
+  // Display the message box
+  messageBox.style.display = "block";
+
+  // Hide the message box after a few seconds
+  setTimeout(function () {
+    messageBox.style.display = "none";
+  }, 5000);
+}
+
+function sendFiles(event) {
+  // validate the form 1st
+  if (!formValidation()) {
+    // if not valid then stop the execution
+    return;
+  }
+
+  const formElement = document.getElementById("formbox1");
   const loadingElement = document.getElementById("loading");
   const successMessageElement = document.getElementById("successMessage");
 
-  loadingElement.style.display = "block"; // Show the loading animation
+  loadingElement.style.display = "block";
+  formElement.classList.add("blur");
+
+  userId = document.getElementById("Email").value.trim();
+  password = document.getElementById("Password").value.trim();
 
   const workbook = XLSX.readFile(path1);
   const sheet_name_list = workbook.SheetNames;
   const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
   // console.log(data.filter(obj => obj['E mail']));
-  Data = data.filter(obj => obj['E mail']);
+  Data = data.filter((obj) => obj["E mail"]);
   console.log(Data);
   var filePath = dirPath;
 
@@ -79,152 +265,87 @@ function sendFiles(event) {
 
   Data.forEach(iterate);
 
-  // Data = undefined;
-  // console.log(Data);
-  // var date = new Date();
-  // date = date.toString().replace(/ /g, "_");
-  // console.log(date);
   function iterate(item) {
     for (var i = 1; i <= 2; i++) {
-      zip.addLocalFile(filePath + item[`CODE${i}`] + '.pdf');
-
+      zip.addLocalFile(filePath + item[`CODE${i}`] + ".pdf");
     }
-    const downloadName = `${Date.now()}.zip`;
+
+    // Get the current date in the format "dd_mm_yyyy"
+    const currentDate = new Date();
+    const day = String(currentDate.getDate()).padStart(2, "0");
+    const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+    const year = currentDate.getFullYear();
+    const downloadName = `${day}_${month}_${year}.zip`;
+
     const data1 = zip.toBuffer();
     zip.writeZip(filePath + downloadName);
 
-    // const output = fs.createWriteStream(filePath + item['E mail'] + '.zip');
-    // const archive = archiver('zip', {
-    //   zlib: { level: 9 }
-    // });
-    // output.on('close', () => {
-    //   console.log('Archive finished.');
-    // });
-    // archive.on('error', (err) => {
-    //   throw err;
-    // });
-    // archive.pipe(output);
-    // for (let i = 1; i <= 2; i++) {
-    //   try {
-    //     const text = path.join(filePath, item[`CODE${i}`] + '.pdf');
-    //     archive.append(fs.createReadStream(text), { name: item[`CODE${i}`] + '.pdf' });
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-
-    // }
-    // archive.finalize();
-    // // filePath = filePath + item['CODE1'] + '.pdf';
     var transporter = nodemailer.createTransport({
       // host: "smtp.mailtrap.io",
       // port: 2525,
       service: "hotmail",
       auth: {
         user: userId,
-        pass: password
-      }
+        pass: password,
+      },
     });
     // console.log(item['E mail'] + '_' + date + '.zip')
     var mailOptions = {
       from: userId,
-      to: item['E mail'],
-      subject: 'Trail4',
-      // html: '<h1>Hello, This is techsolutionstuff !!</h1><p>This is test mail..!</p>',
+      to: item["E mail"],
+      subject: "Mail Sender",
+
       attachments: [
         {
           filename: downloadName,
-          path: filePath + downloadName
-        }
-      ]
+          path: filePath + downloadName,
+        },
+      ],
     };
     transporter.sendMail(mailOptions, function (error, info) {
-      loadingElement.style.display = "none"; // Hide the loading animation
-
       if (error) {
         console.log(error);
-      } else {
-        console.log('Email sent: ' + info.response);
+        
 
-        document.getElementById('formBox').reset();
-        // Show the success message for 3 seconds
-        successMessageElement.style.display = "block";
-        setTimeout(function () {
-          successMessageElement.style.display = "none";
-        }, 3000);
-        // location.reload();
+        const errorMessage = error.response
+          ? error.message.replace(/^Error:\s(.+?)\s\[.+/, '$1')
+          : "Error sending email. Please try again later.";
+
+        // Delete the zip file after email is sent successfully
+        fs.unlink(filePath + downloadName, (err) => {
+          if (err) {
+            console.error("Error deleting zip file:", err);
+          } else {
+            console.log("Zip file deleted successfully.");
+          }
+        });
+
+        // show the error msg
+        showMessage(errorMessage, false);
+
+        loadingElement.style.display = "none";
+        formElement.classList.remove("blur");
+      } else {
+        console.log("Email sent: " + info.response);
+
+        // Delete the zip file after email is sent successfully
+        fs.unlink(filePath + downloadName, (err) => {
+          if (err) {
+            console.error("Error deleting zip file:", err);
+          } else {
+            console.log("Zip file deleted successfully.");
+          }
+        });
+
+        // show the succes msg
+        showMessage("Email Send Successfully", true);
+
+        loadingElement.style.display = "none";
+        formElement.classList.remove("blur");
+
+        document.getElementById("formbox1").reset();
       }
     });
-
-
     filePath = dirPath;
-
-    // Data.shift();
-    // console.log(Data);
-
-
-
   }
 }
-
-// Download Function
-function download(event) {
-  ipc.send("open-folder-dialog-for-file");
-  fileName = fileName.value;
-  ipc.on("selected-folder", function (event, path) {
-    console.log(path[0]);
-    let file = path[0] + "\\" + fileName;
-    console.log(file);
-    console.log(fileName);
-    let contents = fileContents2.value;
-    console.log(contents);
-    fs.writeFile(file, contents, function (err) {
-      if (err) {
-        return console.log(err);
-      }
-      location.reload();
-      console.log("The File was Created");
-    });
-
-  });
-}
-
-//Credential Save
-function submitForm(event) {
-  userId = document.getElementById('email').value;
-  // ('email').value;
-  console.log("userId", userId);
-
-  password = document.getElementById('password').value;
-  console.log("password", password);
-
-}
-
-//Directory Path
-function onDirectorySelected(event) {
-
-  // dialog.showOpenDialog({ properties: ['openDirectory'], defaultPath: 'C:/Users/Admin/Downloads/dir/' }).then(result => {
-  //   if (!result.canceled) {
-  //     const directoryPath = result.filePaths[0];
-  //     console.log(`Selected directory: ${directoryPath}`);
-  //   }
-  // }).catch(err => {
-  //   console.log(err);
-  // });
-
-
-
-  ipcRenderer.send('open-directory-dialog');
-
-  ipcRenderer.on('selected-directory', (event, path) => {
-    // event.preventDefault();
-    console.log(`Selected directory: ${path}`);
-    dirPath = `${path}`.toString() + '/';
-
-    console.log(dirPath);
-    document.getElementById('dirPath').value = dirPath;
-  });
-  // document.getElementById('dirPath').insertAdjacentText = dirPath;
-
-
-}
-

@@ -84,7 +84,7 @@ function createFileUpload() {
   // Process to Load HTML in Main Window
   uploadWindow.loadURL(
     url.format({
-      pathname: path.join(__dirname, "uploadWindow.html"),
+      pathname: path.join(__dirname, "uploadWindow2.html"),
       protocol: "file:",
       slashes: true,
     })
