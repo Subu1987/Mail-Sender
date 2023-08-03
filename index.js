@@ -1,4 +1,4 @@
-const { notEqual } = require("assert");
+const Bottleneck = require("bottleneck");
 const fs = require("fs");
 const path = require("path");
 const ipc = require("electron").ipcRenderer;
@@ -10,7 +10,6 @@ const { electron } = require("process");
 const { dialog, ipcMain, ipcRenderer } = require("electron");
 
 fileName = document.getElementById("fileName");
-
 fileContents = document.getElementById("fileContents");
 fileContents2 = document.getElementById("fileContents2");
 btnRead = document.getElementById("btnRead");
@@ -23,13 +22,6 @@ var mailBody = "";
 var dirPath = "";
 var Data = [];
 var path1 = "";
-// Upload Function
-// userId = document.getElementById('email').value;
-// // ('email').value;
-// console.log("userId", userId);
-
-// password = document.getElementById('password').value;
-// console.log("password", password);
 
 // chk password visibiity
 const togglePassword = document.getElementById("togglePassword");
@@ -236,6 +228,11 @@ function showMessage(message, isSuccess) {
   }, 5000);
 }
 
+
+
+// Create a rate limiter with a limit of 5 emails per second
+const limiter = new Bottleneck({ maxConcurrent: 5, minTime: 200 });
+
 function sendFiles(event) {
   // validate the form 1st
   if (!formValidation()) {
@@ -243,15 +240,23 @@ function sendFiles(event) {
     return;
   }
 
-  const formElement = document.getElementById("formbox1");
-  const loadingElement = document.getElementById("loading");
-  const successMessageElement = document.getElementById("successMessage");
-
-  loadingElement.style.display = "block";
-  formElement.classList.add("blur");
-
   userId = document.getElementById("Email").value.trim();
   password = document.getElementById("Password").value.trim();
+
+  var transporter = nodemailer.createTransport({
+    // host: "smtp.mailtrap.io",
+    // port: 2525,
+    service: "hotmail",
+    auth: {
+      user: userId,
+      pass: password,
+    },
+  });
+
+  const formElement = document.getElementById("formbox1");
+  const loadingElement = document.getElementById("loading");
+  loadingElement.style.display = "block";
+  formElement.classList.add("blur");
 
   const workbook = XLSX.readFile(path1);
   const sheet_name_list = workbook.SheetNames;
@@ -262,6 +267,9 @@ function sendFiles(event) {
   var filePath = dirPath;
 
   const zip = new AdmZip();
+
+  // Create an array to track promises for email sending
+  const emailPromises = [];
 
   Data.forEach(iterate);
 
@@ -277,75 +285,89 @@ function sendFiles(event) {
     const year = currentDate.getFullYear();
     const downloadName = `${day}_${month}_${year}.zip`;
 
+    // zipped file
     const data1 = zip.toBuffer();
     zip.writeZip(filePath + downloadName);
+      // Now the zip file is fully created, proceed with email sending
 
-    var transporter = nodemailer.createTransport({
-      // host: "smtp.mailtrap.io",
-      // port: 2525,
-      service: "hotmail",
-      auth: {
-        user: userId,
-        pass: password,
-      },
-    });
-    // console.log(item['E mail'] + '_' + date + '.zip')
-    var mailOptions = {
-      from: userId,
-      to: item["E mail"],
-      subject: "Mail Sender",
+      var mailOptions = {
+        from: userId,
+        to: item["E mail"],
+        subject: "Mail Sender",
+        attachments: [
+          {
+            filename: downloadName,
+            path: filePath + downloadName,
+          },
+        ],
+      };
 
-      attachments: [
-        {
-          filename: downloadName,
-          path: filePath + downloadName,
-        },
-      ],
-    };
-    transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        console.log(error);
-        
+      // Use the rate limiter to control the email sending rate
+      const emailPromise = limiter.schedule(() => {
+        return new Promise((resolve, reject) => {
+          transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+              console.log(error);
 
-        const errorMessage = error.response
-          ? error.message.replace(/^Error:\s(.+?)\s\[.+/, '$1')
-          : "Error sending email. Please try again later.";
+              const errorMessage = error.response
+                ? error.message.replace(/^Error:\s(.+?)\s\[.+/, "$1")
+                : "Error sending email. Please try again later.";
 
-        // Delete the zip file after email is sent successfully
-        fs.unlink(filePath + downloadName, (err) => {
-          if (err) {
-            console.error("Error deleting zip file:", err);
-          } else {
-            console.log("Zip file deleted successfully.");
-          }
+              // Delete the zip file after email is sent successfully
+              if (fs.existsSync(filePath + downloadName)) {
+                fs.unlink(filePath + downloadName, (err) => {
+                  if (err) {
+                    console.error("Error deleting zip file:", err);
+                  } else {
+                    console.log("Zip file deleted successfully.");
+                  }
+                });
+              }
+
+              // show the error msg
+              showMessage(errorMessage, false);
+
+              loadingElement.style.display = "none";
+              formElement.classList.remove("blur");
+              reject(error);
+            } else {
+              console.log("Email sent: " + info.response);
+
+              // Delete the zip file after email is sent successfully
+              if (fs.existsSync(filePath + downloadName)) {
+                fs.unlink(filePath + downloadName, (err) => {
+                  if (err) {
+                    console.error("Error deleting zip file:", err);
+                  } else {
+                    console.log("Zip file deleted successfully.");
+                  }
+                });
+              }
+
+              // show the success msg
+              showMessage("Email Send Successfully", true);
+
+              loadingElement.style.display = "none";
+              formElement.classList.remove("blur");
+
+              document.getElementById("formbox1").reset();
+              resolve(info);
+            }
+          });
         });
+      });
 
-        // show the error msg
-        showMessage(errorMessage, false);
+      // Add the email promise to the array
+      emailPromises.push(emailPromise);
 
-        loadingElement.style.display = "none";
-        formElement.classList.remove("blur");
-      } else {
-        console.log("Email sent: " + info.response);
-
-        // Delete the zip file after email is sent successfully
-        fs.unlink(filePath + downloadName, (err) => {
-          if (err) {
-            console.error("Error deleting zip file:", err);
-          } else {
-            console.log("Zip file deleted successfully.");
-          }
-        });
-
-        // show the succes msg
-        showMessage("Email Send Successfully", true);
-
-        loadingElement.style.display = "none";
-        formElement.classList.remove("blur");
-
-        document.getElementById("formbox1").reset();
-      }
-    });
-    filePath = dirPath;
+      filePath = dirPath;
   }
+  // Handle all email promises together after they have resolved or rejected
+  Promise.all(emailPromises)
+    .then((results) => {
+      console.log("All emails sent successfully!", results);
+    })
+    .catch((error) => {
+      console.error("Email sending failed!", error);
+    });
 }

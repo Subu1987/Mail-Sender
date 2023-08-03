@@ -9,9 +9,10 @@
 
 h1 {
     font-size: 2.6em;
-    font-weight: bold;
+    /* font-weight: bold; */
     text-align: center;
     color: #f3f1f1;
+    font-family: 'Orbitron', sans-serif;
     
 }
 #mainwrapper {
@@ -39,6 +40,7 @@ h1 {
     margin: auto;
     border-radius: 50px;
     color: #f3f1f1;
+    font-family: 'Orbitron', sans-serif !important;
 }
 .logoBox{
     display: flex;
@@ -66,7 +68,7 @@ h1 {
     background-color: transparent;
     color: #f3f1f1;
     /* font-weight: bold; */
-    font-size: 16px;
+    font-size: 12px;
     padding: 1rem;
     width: 100%;
     margin: 0;
@@ -76,12 +78,14 @@ h1 {
     border: none;
     /* border-bottom: 1.8px solid #fff; */
     overflow: hidden;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 2px;
 }
 
 
 .inputColor::placeholder {
     color: #fdfdfd;
-    font-size: 14px;
+    font-size: 12px;
 }
 .contentone { 
     display: flex;
@@ -90,6 +94,7 @@ h1 {
     position: relative;
     width: 400px;
     border-bottom: 1.8px solid #fff;
+    
 }
 .contentone i {
     display: flex;
@@ -104,7 +109,7 @@ h1 {
 }
 
 .btnsend {
-    margin: 30px 0px;
+    margin: 25px 0px;
     padding: 5px 15px;
     background-color: transparent;
     color: #fbfbfb;
