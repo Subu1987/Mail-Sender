@@ -235,8 +235,9 @@ const limiter = new Bottleneck({ maxConcurrent: 5, minTime: 200 });
 
 // Function to send files as email attachments
 async function sendFiles(event) {
-  // Validate the form first
-  if (!formValidation()) {
+
+   // validate the form first
+   if (!formValidation()) {
     // If not valid, stop the execution
     return;
   }
@@ -262,100 +263,88 @@ async function sendFiles(event) {
   const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
   Data = data.filter((obj) => obj["E mail"]);
   console.log(Data);
+  let filePath = dirPath;
 
-  try {
-    await Promise.all(
-      Data.map(async (item) => {
-        // Create a new instance of AdmZip for each recipient
-        const zip = new AdmZip();
-        let filePath = dirPath; // Set the correct filePath for each email
+  // Iterate through each item in Data array
+  for (const item of Data) {
+    // Create a new instance of AdmZip for each recipient
+    const zip = new AdmZip();
 
-        for (let i = 1; i <= 4; i++) {
-          if (!item[`CODE${i}`]) {
-            continue;
-          } else {
-            zip.addLocalFile(filePath + item[`CODE${i}`] + ".pdf");
-          }
+    for (let i = 1; i <= 2; i++) {
+      zip.addLocalFile(filePath + item[`CODE${i}`] + ".pdf");
+    }
 
-        }
+    // Get the current date in the format "dd_mm_yyyy"
+    const currentDate = new Date();
+    const day = String(currentDate.getDate()).padStart(2, "0");
+    const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+    const year = currentDate.getFullYear();
+    const downloadName = `${day}_${month}_${year}.zip`;
 
-        // Get the current date in the format "dd_mm_yyyy"
-        const currentDate = new Date();
-        const day = String(currentDate.getDate()).padStart(2, "0");
-        const month = String(currentDate.getMonth() + 1).padStart(2, "0");
-        const year = currentDate.getFullYear();
-        const downloadName = `${day}_${month}_${year}.zip`;
+    // Create the zipped file
+    zip.writeZip(filePath + downloadName);
 
-        // Create the zipped file
-        zip.writeZip(filePath + downloadName);
+    // Now the zip file is fully created, proceed with email sending
+    var mailOptions = {
+      from: userId,
+      to: item["E mail"],
+      subject: "Mail Sender",
+      attachments: [
+        {
+          filename: downloadName,
+          path: filePath + downloadName,
+        },
+      ],
+    };
 
-        // Now the zip file is fully created, proceed with email sending
-        const mailOptions = {
-          from: userId,
-          to: item["E mail"],
-          subject: "Mail Sender",
-          attachments: [
-            {
-              filename: downloadName,
-              path: filePath + downloadName,
-            },
-          ],
-        };
+    // Use the rate limiter to control the email sending rate
+    try {
+      await limiter.schedule(() => {
+        return new Promise((resolve, reject) => {
+          transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+              console.log(error);
 
-        // Use the rate limiter to control the email sending rate
-        try {
-          await limiter.schedule(() => {
-            return new Promise((resolve, reject) => {
-              transporter.sendMail(mailOptions, function (error, info) {
-                if (error) {
-                  console.log(error);
+              const errorMessage = error.response
+                ? error.message.replace(/^Error:\s(.+?)\s\[.+/, "$1")
+                : "Error sending email. Please try again later.";
 
-                  const errorMessage = error.response
-                    ? error.message.replace(/^Error:\s(.+?)\s\[.+/, "$1")
-                    : "Error sending email. Please try again later.";
+              // Show the error message
+              showMessage(errorMessage, false);
 
-                  // Show the error message
-                  showMessage(errorMessage, false);
+              loadingElement.style.display = "none";
+              formElement.classList.remove("blur");
+              reject(error);
+            } else {
+              console.log("Email sent: " + info.response);
 
-                  reject(error);
-                } else {
-                  console.log("Email sent: " + info.response);
+              // Delete the zip file after email is sent successfully
+              if (fs.existsSync(filePath + downloadName)) {
+                fs.unlink(filePath + downloadName, (err) => {
+                  if (err) {
+                    console.error("Error deleting zip file:", err);
+                  } else {
+                    console.log("Zip file deleted successfully.");
+                  }
+                });
+              }
 
-                  // Delete the zip file after email is sent successfully
-                  // if (fs.existsSync(filePath + downloadName)) {
-                  //   fs.unlink(filePath + downloadName, (err) => {
-                  //     if (err) {
-                  //       console.error("Error deleting zip file:", err);
-                  //     } else {
-                  //       console.log("Zip file deleted successfully.");
-                  //     }
-                  //   });
-                  // }
+              // Show the success message
+              showMessage("Email Send Successfully", true);
 
-                  // Resolve the promise on success
-                  resolve(info);
-                }
-              });
-            });
+              loadingElement.style.display = "none";
+              formElement.classList.remove("blur");
+
+              document.getElementById("formbox1").reset();
+              resolve(info);
+            }
           });
-        } catch (error) {
-          console.error("Email sending failed!", error);
-          throw error; // Throw the error again to handle it outside this catch block
-        } finally {
-          filePath = dirPath; // Reset filePath for the next email iteration
-        }
-      })
-    );
+        });
+      });
+    } catch (error) {
+      console.error("Email sending failed!", error);
+    }
 
-    // Show the success message after all emails are sent successfully
-    showMessage("All Emails Sent Successfully", true);
-  } catch (error) {
-    // Show the error message if any email encounters an error
-    showMessage(error, false);
-  } finally {
-    // Hide the loading box and reset the form
-    loadingElement.style.display = "none";
-    formElement.classList.remove("blur");
-    document.getElementById("formbox1").reset();
+    filePath = dirPath;
   }
 }
