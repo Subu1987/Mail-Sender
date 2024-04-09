@@ -1,0 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@100;300;500&display=swap');
+
+* {
+    margin: 0px;
+    padding: 0px;
+    font-family: 'Roboto Mono', monospace !important;
+}
+
+h1 {
+    color: red;
+}
+
+.mainWrapper {
+    margin: 25px;
+    color: blue;
+    border: 2px solid red;  
+
+}
+
+#fileContents {
+    overflow: scroll;
+    height: 500px;
+    border: 5px solid red;
+    color: blue;
+    padding-left: 20px;
+}
+
+#fileContents2 {
+    height: 400px;
+    border: 5px solid red;
+    font-size: large;
+    font-weight: 500;
+    word-wrap: break-word;
+
+}
+
+#fileName {
+    border: 5px solid red;
+}
+
+.formBox {
+    box-shadow: 0 0 40px 10px #48abe0;
+}
+
+.btnColor {
+    border: 2px solid #43b1ec !important;
+    color: #fbfbfb !important;
+}
+
+.inputColor {
+    background-color: rgb(21, 24, 23) !important;
+    border: 2px solid #48abe0 !important;
+    margin-right: 10px !important;
+    color: #fbfbfb !important;
+    /* font-weight: bold !important; */
+}
+
+.inputColor::placeholder {
+    color: #fbfbfb !important;
+    /* font-weight: bold !important; */
+    margin-left: 10px !important;
+
+}
+
+.inputColor::before {
+    content: "@example.com";
+    color: #fbfbfb !important;
+    /* font-weight: bold !important; */
+}
+
+.hidden {
+    display: none;
+}
+
+.mainWrapper {
+    margin: 25px;
+    color: blue;
+    position: relative;
+    /* Add this line */
+}
+
+#loadingBox {
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 50% !important;
+}
+
+#loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    /* background-color: rgba(255, 255, 255, 0.8); */
+    /* Set a transparent background color */
+}
+
+#successMessage {
+    position: absolute;
+    top: 10%;
+    left: 52%;
+    transform: translate(-50%, -50%);
+    background-color: #28a0d6;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: #2a3840;
+    z-index: 10;
+    box-shadow: 0 0 40px 10px #020f1f;
+}

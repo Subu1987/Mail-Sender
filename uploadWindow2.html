@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="style2.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mail Sender</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Mate+SC&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div id="mainwrapper">
+        <div class="ring-container" id="mailCount" class="hidden">
+            <div class="ring">
+                <div class="number" id="mailCountNo">0</div>
+            </div>
+        </div>
+        <div id="messageBox" class="hidden">
+            <p id="messageText"></p>
+        </div>
+        <div id="loadingBox">
+            <div id="loading" class="hidden">
+                <img src="./image/loading3d.gif" alt="Sending..." />
+            </div>
+        </div>
+        <form id="formbox1" class="formbox">
+            
+            <div class="logoBox">
+                <div class="logo">
+                    <img src="./image/logo.png" />
+                </div>
+                <h1>Mail Sender</h1>
+            </div>
+            <div class="contentone">
+                <input type="email" id="Email" name="Email Id" class="form-control inputColor" placeholder="Email"
+                    required />
+                <i class="fa fa-envelope" id="mailIcon"></i>
+            </div>
+
+            <div class="contentone">
+                <input type="password" id="Password" name="Password" autocomplete="current-password" required
+                    class="form-control inputColor" placeholder="Password"/>
+                <i class="fa fa-eye" id="togglePassword"></i>
+            </div>
+
+            <div class="contentone">
+                <input type="" name="text" id="excel" class="form-control inputColor" placeholder="Choose Excel Sheet"
+                    readonly required />
+
+                <i class="fa fa-file-excel" id="excelBtn" onclick="upload()"></i>
+            </div>
+
+            <div class="contentone">
+                <input type="" name="text" id="dirPath" class="form-control inputColor"
+                    placeholder="Choose Directory Path" readonly required />
+
+                <i class="fa fa-folder-open fa-beat" id="dirPathBtn" onclick="onDirectorySelected()"></i>
+            </div>
+
+            <div>
+                <button id="sendFiles" type="button" placeholder="upload" class="btnsend">
+                    Send
+                </button>
+            </div>
+        </form>
+        <footer>
+            <p>Developed by Infocus Technologies Pvt Ltd © 2024 All Rights Reserved.</p>
+        </footer>
+        
+    </div>
+
+    <script src="backupIndex.js"></script>
+</body>
+
+</html>

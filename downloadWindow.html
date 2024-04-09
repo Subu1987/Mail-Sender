@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+  <link rel="stylesheet" href="photon.min.css" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Download File</title>
+</head>
+
+<body>
+
+  <div class="mainWrapper">
+    <h1><u>Download File</u></h1>
+    <form>
+      <div class="form-group" style="color: black;">
+        <h5><b><u>File Name</u></b></h5>
+        <input type="text" class="form-control" id="fileName">
+      </div>
+      <div class="form-group" style="color: black;">
+        <h5><b><u>Contents</u></b></h5>
+        <textarea id="fileContents2" class="form-control" rows="10" cols="15"></textarea>
+      </div>
+    </form>
+    <button id="btnCreate" class="btn btn-large btn-primary" onclick="download()">Download</button>
+  </div>
+  <script src="index.js"></script>
+</body>
+
+</html>

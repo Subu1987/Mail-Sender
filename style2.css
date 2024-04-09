@@ -1,0 +1,243 @@
+* body {
+    margin: 0px;
+    padding: 0px;
+    background-image: url(image/image.jpg);
+    background-size: cover;
+    font-family: 'Orbitron', sans-serif;
+    /* backdrop-filter: blur(5px); */
+    transition: filter 0.3s ease-in-out;
+
+}
+
+h1 {
+    font-size: 2.6em;
+    /* font-weight: bold; */
+    text-align: center;
+    color: #f3f1f1;
+    font-family: 'Orbitron', sans-serif;
+    
+}
+#mainwrapper {
+    display: flex;
+    margin: auto;
+    height: 100vh;
+    width: 100vw;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    background-position: center;
+    background-blend-mode: darken;
+    box-sizing: border-box;
+}
+.formbox {
+    height: 400px;
+    width: 450px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(31, 31, 31, 0.5);
+    box-shadow: 0 0 40px 10px #48abe0;
+    margin: auto;
+    border-radius: 50px;
+    color: #f3f1f1;
+    font-family: 'Orbitron', sans-serif !important;
+}
+.logoBox{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-bottom: 30px;
+}
+.logo{
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 40px 10px #48abe0;
+    margin-right: 10px;
+    
+}
+.logo img{
+    width: 70%;
+    
+}
+.inputColor {
+    background-color: transparent;
+    color: #f3f1f1;
+    /* font-weight: bold; */
+    font-size: 12px;
+    padding: 1rem;
+    width: 100%;
+    margin: 0;
+    line-height: 1;
+    box-sizing: border-box;
+    outline: none;
+    border: none;
+    /* border-bottom: 1.8px solid #fff; */
+    overflow: hidden;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 2px;
+}
+
+
+.inputColor::placeholder {
+    color: #fdfdfd;
+    font-size: 12px;
+}
+.contentone { 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    width: 400px;
+    border-bottom: 1.8px solid #fff;
+    
+}
+.contentone i {
+    display: flex;
+    justify-content: center;
+    color: #fdfdfd;
+    border: 0;
+    background: none;
+    outline: none;
+    width: 5%;
+    padding: 0 10px;
+    z-index: 2;
+}
+
+.btnsend {
+    margin: 25px 0px;
+    padding: 5px 15px;
+    background-color: transparent;
+    color: #fbfbfb;
+    font-size: 16px;
+    border-radius: 10px;
+    border: 1px solid #fff;
+    font-family: 'Orbitron', sans-serif;
+    transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+.btnsend:hover {
+    background-color: #5ed628;
+    color: black;   
+    border: solid #5ed628; 
+    transform: scale(1.1);
+    font-weight: bold;
+}
+
+#loadingBox {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+#loadingBox.active ~ #mainwrapper {
+    filter: blur(5px);
+}
+
+#loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    /* background-color: rgba(255, 255, 255, 0.8); */
+    /* Set a transparent background color */
+}
+#loading img{
+    width: 200px;
+}
+.hidden{
+    display: none;
+}
+#formbox1.blur {
+    filter: blur(2px);
+    pointer-events: none;
+}
+.ring-container {
+    position: relative;
+    display: none;
+}
+
+.ring {
+    position: absolute;
+    top: 60%;
+    width: 40px;
+    height: 40px;
+    border: 3px solid #5ed628; /* Replace this with your desired ring color */
+    border-radius: 50%;
+    position: relative;
+}
+
+.number {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    font-weight: bold;
+    color: #5ed628; /* Replace this with your desired number color */
+}
+#messageBox {
+    position: absolute;
+    top: 10%; 
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 5px 30px;
+    background-color: #5ed628;
+    border-radius: 5px;
+    color: #2a3840;
+    z-index: 10;
+    box-shadow: 0 0 40px 10px #020f1f;
+    display: none;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: sans-serif;
+    text-align: center;
+}
+#messageBox.error {
+    background-color: #f44336;
+}
+.validation-message {
+    color: #ff6565;
+    font-size: 12px;
+    margin-top: 5px;
+}
+#togglePassword {
+    cursor: pointer;
+    transition: color 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+#togglePassword:hover {
+    color: #5ed628;
+    transform: scale(1.4);
+}
+#excelBtn{
+    cursor: pointer;
+    transition: color 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+#excelBtn:hover{
+    color: #5ed628;
+    transform: scale(1.4);
+}
+#dirPathBtn{
+    cursor: pointer;
+    transition: color 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+#dirPathBtn:hover{
+    color: #5ed628;
+    transform: scale(1.4);
+}
+#mailIcon{
+    opacity: 0.5;
+}
+footer {
+    color: #f3f1f1;
+    padding: 4px;
+    text-align: center;
+    font-size: 14px;
+    font-family: 'Mate SC', serif;
+}

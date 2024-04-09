@@ -1,0 +1,29 @@
+{
+  "name": "Mail Sender",
+  "version": "1.0.0",
+  "description": "Automatic Mail Sender to the users",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "package-win": "electron-packager . Mail-Sender --overwrite --asar=true --platform=win32 --arch=ia32 --icon=assets/icons/win/icon.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Mail-Sender\""
+  },
+  "author": "Infocus Technologies Pvt Ltd",
+  "license": "MIT",
+  "dependencies": {
+    "adm-zip": "^0.5.10",
+    "archiver": "^5.3.1",
+    "bootstrap": "^5.3.0",
+    "bottleneck": "^2.19.5",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.3",
+    "nodemon": "^3.0.1",
+    "path": "^0.12.7",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "electron": "^25.4.0",
+    "electron-packager": "^17.1.1"
+  }
+}
