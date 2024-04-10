@@ -30,7 +30,7 @@ function createAddWindow() {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
-    },
+    }
   });
   // Process to Load HTML in Main Window
   addWindow.loadURL(
@@ -51,13 +51,14 @@ function createFileUpload() {
   uploadWindow = new BrowserWindow({
     width: 800,
     height: 600,
-    title: "Upload File",
+    title: "Multifile Mail Sender",
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
     },
     autoHideMenuBar: false,
+    icon: "./assets/icons/win/icon.ico"
   });
   // Process to Load HTML in Main Window
   uploadWindow.loadURL(

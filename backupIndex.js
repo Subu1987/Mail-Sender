@@ -149,7 +149,7 @@ function showMessage(message, isSuccess) {
   messageBox.classList.add(isSuccess ? "success" : "error");
   messageBox.style.display = "block";
 
-  setTimeout(() => messageBox.style.display = "none", 7000);
+  setTimeout(() => messageBox.style.display = "none", 5000);
 }
 
 // Create a rate limiter with a limit of 5 emails per second
@@ -202,14 +202,21 @@ async function sendFiles() {
         // Create a new instance of AdmZip for each recipient
         const zip = new AdmZip();
         let filePath = dirPath; // Set the correct filePath for each email
+        let filesToSend = [];
 
         for (let i = 1; i <= maxCodeFileNo; i++) {
           if (!item[`CODE${i}`]) {
             continue;
           } else {
-            zip.addLocalFile(filePath + item[`CODE${i}`] + ".pdf");
+            const fileName = item[`CODE${i}`] + ".pdf";
+            if (fs.existsSync(filePath + fileName)) {
+              zip.addLocalFile(filePath + item[`CODE${i}`] + ".pdf");
+              filesToSend.push(item[`CODE${i}`]); // Collect files to be sent for logging
+            } else {
+              // showMessage(`File ${fileName} not found. Skipping...`, false);
+              console.warn(`File ${fileName} not found. Skipping...`);
+            }
           }
-
         }
 
         const downloadName = item['TRADER NAME'] + ".zip";
@@ -243,27 +250,24 @@ async function sendFiles() {
                   mailCount++;
                   mailCountNo.textContent = mailCount;
                   resolve(info);
-
-
                 }
               });
+            }).then(() => {
+              // Log the email sent along with the files for this recipient
+              let currentDate = new Date().toLocaleString('en-US', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric',
+                hour12: true
+              });
+              let logEntry = `${currentDate} - Email sent to: ${item['E mail']}, Files: ${filesToSend.join(", ")}`;
+              fs.appendFileSync(logFilePath, logEntry + '\n');
+
             });
           });
-
-          // Log the email sent
-          let currentDate = new Date().toLocaleString('en-US', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            second: 'numeric',
-            hour12: true
-          });
-
-          let logEntry = `${currentDate} - Email sent to: ${item['E mail']}`;
-          fs.appendFileSync(logFilePath, logEntry + '\n');
-
         } catch (error) {
           console.error("Email sending failed!", error);
           throw error;
@@ -272,6 +276,7 @@ async function sendFiles() {
           fs.unlinkSync(filePath + downloadName);
           filePath = dirPath; // Reset filePath for the next email iteration
         }
+
       })
     );
     mailCountBox.style.display = "none";
